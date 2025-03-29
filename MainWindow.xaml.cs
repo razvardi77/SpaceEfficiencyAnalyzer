@@ -170,13 +170,8 @@ namespace SpaceEfficiencyAnalyzer
         }
         private void Object_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
+
             /*selectedRectangle = sender as Rectangle;
-            if (selectedRectangle != null)
-            {
-                selectedLabel = selectedRectangle.Tag as TextBlock;
-                ShowResizeDialog();
-            }*/
-            selectedRectangle = sender as Rectangle;
             if (selectedRectangle != null)
             {
                 selectedLabel = selectedRectangle.Tag as TextBlock;
@@ -191,6 +186,32 @@ namespace SpaceEfficiencyAnalyzer
 
                 contextMenu.Items.Add(resizeItem);
                 contextMenu.Items.Add(renameItem);
+
+                contextMenu.IsOpen = true;
+            }*/
+            selectedRectangle = sender as Rectangle;
+            if (selectedRectangle != null)
+            {
+                selectedLabel = selectedRectangle.Tag as TextBlock;
+
+                ContextMenu contextMenu = new ContextMenu();
+
+                MenuItem resizeItem = new MenuItem { Header = "Resize" };
+                resizeItem.Click += (s, ev) => ShowResizeDialog();
+
+                MenuItem renameItem = new MenuItem { Header = "Rename" };
+                renameItem.Click += (s, ev) => RenameObject();
+
+                MenuItem flipHorizontal = new MenuItem { Header = "Flip Horizontal" };
+                flipHorizontal.Click += (s, ev) => FlipObject(true);
+
+                MenuItem flipVertical = new MenuItem { Header = "Flip Vertical" };
+                flipVertical.Click += (s, ev) => FlipObject(false);
+
+                contextMenu.Items.Add(resizeItem);
+                contextMenu.Items.Add(renameItem);
+                contextMenu.Items.Add(flipHorizontal);
+                contextMenu.Items.Add(flipVertical);
 
                 contextMenu.IsOpen = true;
             }
@@ -312,6 +333,23 @@ namespace SpaceEfficiencyAnalyzer
             RoomCanvas.Width = width * 100;  // Convert meters to pixels if needed
             RoomCanvas.Height = height * 100;
         }
+
+        private void FlipObject(bool horizontal)
+        {
+            if (selectedRectangle == null || selectedLabel == null) return;
+
+            double originalWidth = selectedRectangle.Width / PixelsPerMeter;
+            double originalHeight = selectedRectangle.Height / PixelsPerMeter;
+
+            selectedRectangle.Width = originalHeight * PixelsPerMeter;
+            selectedRectangle.Height = originalWidth * PixelsPerMeter;
+
+            string orientation = horizontal ? "Horizontal" : "Vertical";
+            string[] labelParts = selectedLabel.Text.Split('(');
+            string namePart = labelParts[0].Trim();
+            selectedLabel.Text = $"{namePart} ({orientation}) ({originalHeight}m x {originalWidth}m)";
+        }
+
         private Brush GetNextRainbowColor()
         {
             Brush color = rainbowColors[currentColorIndex];
