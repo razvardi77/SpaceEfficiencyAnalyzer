@@ -16,6 +16,7 @@ namespace SpaceEfficiencyAnalyzer
         private bool isSelectingObject = false;
         private bool isDragging = false;
         private Point lastMousePosition;
+
         private readonly Brush[] rainbowColors = new Brush[]
         {
             Brushes.Red,
@@ -81,6 +82,7 @@ namespace SpaceEfficiencyAnalyzer
             rect.MouseLeftButtonDown += Object_MouseLeftButtonDown;
             rect.MouseMove += Object_MouseMove;
             rect.MouseLeftButtonUp += Object_MouseLeftButtonUp;
+            rect.MouseRightButtonDown += Object_MouseRightButtonDown; // Right-click to resize
         }
 
         private string PromptForObjectName()
@@ -166,6 +168,59 @@ namespace SpaceEfficiencyAnalyzer
                 selectedRectangle?.ReleaseMouseCapture();
             }
         }
+        private void Object_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            selectedRectangle = sender as Rectangle;
+            if (selectedRectangle != null)
+            {
+                selectedLabel = selectedRectangle.Tag as TextBlock;
+                ShowResizeDialog();
+            }
+        }
+        private void ShowResizeDialog()
+        {
+            if (selectedRectangle == null) return;
+
+            Window resizeWindow = new Window
+            {
+                Title = "Resize Object",
+                Width = 300,
+                Height = 200,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                Owner = this
+            };
+
+            StackPanel panel = new StackPanel { Margin = new Thickness(10) };
+            TextBox widthInput = new TextBox { Text = (selectedRectangle.Width / PixelsPerMeter).ToString(), Width = 200 };
+            TextBox heightInput = new TextBox { Text = (selectedRectangle.Height / PixelsPerMeter).ToString(), Width = 200 };
+            Button submitButton = new Button { Content = "Apply", Margin = new Thickness(5) };
+
+            submitButton.Click += (s, e) =>
+            {
+                if (double.TryParse(widthInput.Text, out double newWidth) &&
+                    double.TryParse(heightInput.Text, out double newHeight))
+                {
+                    selectedRectangle.Width = newWidth * PixelsPerMeter;
+                    selectedRectangle.Height = newHeight * PixelsPerMeter;
+
+                    if (selectedLabel != null)
+                    {
+                        selectedLabel.Text = $"{selectedLabel.Text.Split(' ')[0]} ({newWidth}m x {newHeight}m)";
+                    }
+                    resizeWindow.Close();
+                }
+            };
+
+            panel.Children.Add(new TextBlock { Text = "Width (m):" });
+            panel.Children.Add(widthInput);
+            panel.Children.Add(new TextBlock { Text = "Height (m):" });
+            panel.Children.Add(heightInput);
+            panel.Children.Add(submitButton);
+
+            resizeWindow.Content = panel;
+            resizeWindow.ShowDialog();
+        }
+
 
         private void SelectObject(Rectangle rect)
         {
