@@ -17,10 +17,14 @@
             <TextBox x:Name="roomHeightInput" Width="50" Text="10"/>
             <Button x:Name="updateRoomSizeButton" Content="Update Room Size" Click="UpdateRoomSize_Click"/>
             <Button x:Name="addObjectButton" Content="Add Object" Click="AddObject_Click"/>
+            <Button x:Name="measureDistanceButton" Content="Measure Distance" Click="MeasureDistanceButton_Click"/>
             <Button x:Name="selectObjectButton" Content="Select Object" Click="SelectObjectButton_Click"/>
             <Button x:Name="deleteObjectButton" Content="Delete Object" Click="DeleteObjectButton_Click" IsEnabled="False"/>
+            <Button x:Name="alignButton" Content="Align Objects" Click="AlignButton_Click" IsEnabled="False"/>
+
         </StackPanel>
-        <Canvas x:Name="RoomCanvas" Background="LightGray" Grid.Row="1"/>
+        <Canvas x:Name="RoomCanvas" Background="LightGray" Grid.Row="1" Width="600" Height="400"/>
+
         <!-- Objects will be added here dynamically -->
 
         
