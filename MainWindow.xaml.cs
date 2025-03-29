@@ -4,9 +4,6 @@ using System.Windows.Controls;
 using System.Windows.Shapes;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Collections.Generic;
-using SpaceEfficiencyAnalyzer;
-using Newtonsoft.Json;  // Example
 
 
 namespace SpaceEfficiencyAnalyzer
@@ -19,11 +16,21 @@ namespace SpaceEfficiencyAnalyzer
         private bool isSelectingObject = false;
         private bool isDragging = false;
         private Point lastMousePosition;
-
+        private readonly Brush[] rainbowColors = new Brush[]
+        {
+            Brushes.Red,
+            Brushes.Orange,
+            Brushes.Yellow,
+            Brushes.Green,
+            Brushes.Blue,
+            Brushes.Indigo,
+            Brushes.Violet
+        };
+        private int currentColorIndex = 0; // Tracks which rainbow color to use next
         public MainWindow()
         {
             InitializeComponent();
-         //   this.DataContext = new YourViewModel();
+            //   this.DataContext = new YourViewModel();
         }
 
         private void AddObject_Click(object sender, RoutedEventArgs e)
@@ -33,11 +40,13 @@ namespace SpaceEfficiencyAnalyzer
             double x = RoomCanvas.Children.Count * 60;
             double y = 50;
 
+            // Get the next rainbow color
+            Brush currentColor = GetNextRainbowColor();
             Rectangle rect = new Rectangle
             {
                 Width = 2 * PixelsPerMeter,
                 Height = 1 * PixelsPerMeter,
-                Fill = Brushes.Blue,
+                Fill = currentColor,
                 Stroke = Brushes.Black,
                 StrokeThickness = 2
             };
@@ -45,9 +54,13 @@ namespace SpaceEfficiencyAnalyzer
             Canvas.SetLeft(rect, x);
             Canvas.SetTop(rect, y);
 
+            // Prompt the user for the object's name
+            string objectName = PromptForObjectName();
+            if (string.IsNullOrWhiteSpace(objectName)) objectName = "Unnamed Object";
+
             TextBlock label = new TextBlock
             {
-                Text = "2m x 1m",
+                Text = $"{objectName} (2m x 1m)",
                 Foreground = Brushes.Black,
                 Background = Brushes.White,
                 FontSize = 12,
@@ -63,6 +76,39 @@ namespace SpaceEfficiencyAnalyzer
             rect.MouseLeftButtonDown += Object_MouseLeftButtonDown;
             rect.MouseMove += Object_MouseMove;
             rect.MouseLeftButtonUp += Object_MouseLeftButtonUp;
+        }
+
+        private string PromptForObjectName()
+        {
+            // Create a dialog window to get the name from the user
+            Window inputWindow = new Window
+            {
+                Title = "Enter Object Name",
+                Width = 300,
+                Height = 150,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                Owner = this
+            };
+
+            StackPanel panel = new StackPanel { Margin = new Thickness(10) };
+            TextBox nameInput = new TextBox { Width = 200 };
+            Button submitButton = new Button { Content = "Submit", Margin = new Thickness(5) };
+            string objectName = null;
+
+            submitButton.Click += (s, e) =>
+            {
+                objectName = nameInput.Text;
+                inputWindow.Close();
+            };
+
+            panel.Children.Add(new TextBlock { Text = "Enter the name of the object:" });
+            panel.Children.Add(nameInput);
+            panel.Children.Add(submitButton);
+
+            inputWindow.Content = panel;
+            inputWindow.ShowDialog();
+
+            return objectName;
         }
 
         private void Object_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -165,6 +211,12 @@ namespace SpaceEfficiencyAnalyzer
             // Example: Updating a Canvas element representing the room
             RoomCanvas.Width = width * 100;  // Convert meters to pixels if needed
             RoomCanvas.Height = height * 100;
+        }
+        private Brush GetNextRainbowColor()
+        {
+            Brush color = rainbowColors[currentColorIndex];
+            currentColorIndex = (currentColorIndex + 1) % rainbowColors.Length; // Cycle to next color
+            return color;
         }
 
     }
