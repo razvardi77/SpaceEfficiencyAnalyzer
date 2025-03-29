@@ -42,6 +42,7 @@ namespace SpaceEfficiencyAnalyzer
 
             // Get the next rainbow color
             Brush currentColor = GetNextRainbowColor();
+
             Rectangle rect = new Rectangle
             {
                 Width = 2 * PixelsPerMeter,
@@ -72,6 +73,10 @@ namespace SpaceEfficiencyAnalyzer
 
             RoomCanvas.Children.Add(rect);
             RoomCanvas.Children.Add(label);
+
+            // Store the label as part of the rectangle's "Tag" for easy access
+            rect.Tag = label;
+
 
             rect.MouseLeftButtonDown += Object_MouseLeftButtonDown;
             rect.MouseMove += Object_MouseMove;
@@ -113,38 +118,45 @@ namespace SpaceEfficiencyAnalyzer
 
         private void Object_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (isSelectingObject)
+       
+            selectedRectangle = sender as Rectangle;
+            if (selectedRectangle != null)
             {
-                SelectObject(sender as Rectangle);
-                isSelectingObject = false;
-                selectObjectButton.Content = "Select Object";
-            }
-            else
-            {
-                selectedRectangle = sender as Rectangle;
-                if (selectedRectangle != null)
-                {
-                    isDragging = true;
-                    lastMousePosition = e.GetPosition(RoomCanvas);
-                    selectedRectangle.CaptureMouse();
-                }
+                // Find the label associated with this rectangle
+                selectedLabel = selectedRectangle.Tag as TextBlock;
+
+                isDragging = true;
+                lastMousePosition = e.GetPosition(RoomCanvas);
+                selectedRectangle.CaptureMouse();
             }
         }
 
         private void Object_MouseMove(object sender, MouseEventArgs e)
         {
+           
             if (isDragging && selectedRectangle != null)
             {
                 Point newMousePosition = e.GetPosition(RoomCanvas);
                 double offsetX = newMousePosition.X - lastMousePosition.X;
                 double offsetY = newMousePosition.Y - lastMousePosition.Y;
 
-                Canvas.SetLeft(selectedRectangle, Canvas.GetLeft(selectedRectangle) + offsetX);
-                Canvas.SetTop(selectedRectangle, Canvas.GetTop(selectedRectangle) + offsetY);
+                double newX = Canvas.GetLeft(selectedRectangle) + offsetX;
+                double newY = Canvas.GetTop(selectedRectangle) + offsetY;
+
+                Canvas.SetLeft(selectedRectangle, newX);
+                Canvas.SetTop(selectedRectangle, newY);
+
+                // Move the label along with the object
+                if (selectedRectangle.Tag is TextBlock label)
+                {
+                    Canvas.SetLeft(label, newX);
+                    Canvas.SetTop(label, newY - 20); // Slightly above the object
+                }
 
                 lastMousePosition = newMousePosition;
             }
         }
+
 
         private void Object_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
