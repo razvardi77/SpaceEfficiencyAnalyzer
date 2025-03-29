@@ -170,13 +170,46 @@ namespace SpaceEfficiencyAnalyzer
         }
         private void Object_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
-            selectedRectangle = sender as Rectangle;
+            /*selectedRectangle = sender as Rectangle;
             if (selectedRectangle != null)
             {
                 selectedLabel = selectedRectangle.Tag as TextBlock;
                 ShowResizeDialog();
+            }*/
+            selectedRectangle = sender as Rectangle;
+            if (selectedRectangle != null)
+            {
+                selectedLabel = selectedRectangle.Tag as TextBlock;
+
+                ContextMenu contextMenu = new ContextMenu();
+
+                MenuItem resizeItem = new MenuItem { Header = "Resize" };
+                resizeItem.Click += (s, ev) => ShowResizeDialog();
+
+                MenuItem renameItem = new MenuItem { Header = "Rename" };
+                renameItem.Click += (s, ev) => RenameObject();
+
+                contextMenu.Items.Add(resizeItem);
+                contextMenu.Items.Add(renameItem);
+
+                contextMenu.IsOpen = true;
             }
         }
+
+        private void RenameObject()
+        {
+            if (selectedLabel == null) return;
+
+            string newName = PromptForObjectName();
+            if (!string.IsNullOrWhiteSpace(newName))
+            {
+                string[] labelParts = selectedLabel.Text.Split('(');
+                string sizePart = labelParts.Length > 1 ? $"({labelParts[1]}" : "";
+                selectedLabel.Text = $"{newName} {sizePart}";
+            }
+        }
+
+
         private void ShowResizeDialog()
         {
             if (selectedRectangle == null) return;
