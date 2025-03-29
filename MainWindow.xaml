@@ -1,0 +1,28 @@
+<Window x:Class="SpaceEfficiencyAnalyzer.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Space Efficiency Analyzer" Height="600" Width="800"
+        DataContext="{Binding RelativeSource={RelativeSource Self}}">
+    <Grid x:Name="MainGrid">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <!-- Controls Panel -->
+            <RowDefinition Height="*"/>
+            <!-- RoomCanvas takes remaining space -->
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="10">
+            <TextBlock Text="Room Width (m):" VerticalAlignment="Center"/>
+            <TextBox x:Name="roomWidthInput" Width="50" Text="10"/>
+            <TextBlock Text="Room Height (m):" VerticalAlignment="Center"/>
+            <TextBox x:Name="roomHeightInput" Width="50" Text="10"/>
+            <Button x:Name="updateRoomSizeButton" Content="Update Room Size" Click="UpdateRoomSize_Click"/>
+            <Button x:Name="addObjectButton" Content="Add Object" Click="AddObject_Click"/>
+            <Button x:Name="selectObjectButton" Content="Select Object" Click="SelectObjectButton_Click"/>
+            <Button x:Name="deleteObjectButton" Content="Delete Object" Click="DeleteObjectButton_Click" IsEnabled="False"/>
+        </StackPanel>
+        <Canvas x:Name="RoomCanvas" Background="LightGray" Grid.Row="1"/>
+        <!-- Objects will be added here dynamically -->
+
+        
+    </Grid>
+</Window>
